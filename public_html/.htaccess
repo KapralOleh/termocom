@@ -1,0 +1,6 @@
+RewriteEngine On
+RewriteBase /
+
+# BEGIN WordPress
+
+# END WordPress
