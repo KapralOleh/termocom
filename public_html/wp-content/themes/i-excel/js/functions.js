@@ -54,6 +54,130 @@
 
 /* scripts to run on document ready */
 jQuery(document).ready(function($) {
+	// 
+	/* ================================================
+       Google Map
+       ================================================ */
+      if (document.getElementById('map')) {
+      var mapStyle = [
+      {
+        'stylers': [
+          {
+            'hue': '#ff1a00'
+          }, {
+            'invert_lightness': true
+          }, {
+            'saturation': -100
+          }, {
+            'lightness': 33
+          }, {
+            'gamma': 0.5
+          }
+        ]
+      }, {
+        'featureType': 'water',
+        'elementType': 'geometry',
+        'stylers': [
+          {
+            'color': '#414042'
+          }
+        ]
+      }
+    ];
+    // Language
+      var language = location.href.indexOf('/uk/');
+      var content = {
+        ua:{
+          marker1:{
+            title: "Термоком",
+            description:"Будівництво систем теплопостачання"
+          }
+        },
+        en:{
+          marker1:{
+            title:"",
+            description:""
+          }
+        }
+      }
+      function getConcatValue(object) {
+        return ['<div id="content" style="width:200px;max-height:115px;">',
+          '<h4 style="margin:0" id="firstHeading" class="firstHeading">',
+            object.title,
+          '</h4>',
+          '<div id="bodyContent">',
+            '<p>',
+              object.description,
+            '</p>',
+          '</div>',
+        '</div>'].join('');
+        
+      }
+      var a = Object.keys(content).map(function (lang) {
+        return Object.keys(content[lang]).map(function(marker){
+          return getConcatValue(content[lang][marker]);
+        });
+      })
+      // Map initialization
+      var myLatLng = {lat: 49.802215, lng: 24.052889};
+      var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 16,
+        center: myLatLng,
+        disableDefaultUI: true,
+        zoomControl: true,
+        scrollwheel: false
+      });
+      var styledMap = new google.maps.StyledMapType(mapStyle, {
+        name: 'Styled Map'
+      });
+      map.mapTypes.set('map-style', styledMap);
+      map.setMapTypeId('map-style');
+
+      // Markers
+      var markersLatLng = {
+        position1: {lat: 49.802215, lng: 24.052889},
+      };
+      var markers = {};
+      for (var i=1; i<10; i++) {
+        markers["marker"+i] = new google.maps.Marker({
+          position: markersLatLng["position"+i],
+          map: map,
+          animation: google.maps.Animation.DROP,
+        })
+      }
+      // Info Window
+      var markerWindows = [];
+      if (language > 0) {
+        for (var i = 1; i < 10; i++) {
+          markerWindows["window"+i] = new google.maps.InfoWindow({
+            content: a[1][i-1]
+          });
+        }
+      } else {
+        for (var i = 1; i < 10; i++) {
+          markerWindows["window"+i] = new google.maps.InfoWindow({
+            content: a[0][i-1]
+          });
+        }
+      }
+      
+      var lastOpenedInfoWindow = false;
+      for (var i in markers) {
+        (function(i){
+            markers[i].addListener('click', function() {
+              closeLastOpenedInfoWindo();
+              markerWindows["window"+i.slice(-1)].open(map, markers[i]);
+              lastOpenedInfoWindow = markerWindows["window"+i.slice(-1)];
+            });
+        })(i);
+      }
+      function closeLastOpenedInfoWindo() {
+        if (lastOpenedInfoWindow) {
+            lastOpenedInfoWindow.close();
+        }
+      }
+    }
+
 	
 	/* customizing the drop down menu */
 	jQuery('div.nav-container > ul > li > a').append( '<span class="colorbar"></span>' );
